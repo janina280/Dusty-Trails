@@ -5,11 +5,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+
 
 public abstract class ShaderProgram {
 	
@@ -88,7 +90,7 @@ public abstract class ShaderProgram {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line;
 			while((line = reader.readLine())!=null){
-				shaderSource.append(line).append("//\n");
+				shaderSource.append(line).append("\n");
 			}
 			reader.close();
 		}catch(IOException e){
@@ -98,12 +100,13 @@ public abstract class ShaderProgram {
 		int shaderID = GL20.glCreateShader(type);
 		GL20.glShaderSource(shaderID, shaderSource);
 		GL20.glCompileShader(shaderID);
-		if(GL20.glGetShader(shaderID, GL20.GL_COMPILE_STATUS )== GL11.GL_FALSE){
+		if(GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS )== GL11.GL_FALSE){
 			System.out.println(GL20.glGetShaderInfoLog(shaderID, 500));
 			System.err.println("Could not compile shader!");
 			System.exit(-1);
 		}
 		return shaderID;
 	}
+
 
 }
