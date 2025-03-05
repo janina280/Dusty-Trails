@@ -6,10 +6,8 @@ import java.util.Random;
 
 import models.RawModel;
 import models.TexturedModel;
-
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
-
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.MasterRenderer;
@@ -22,46 +20,53 @@ import entities.Light;
 
 public class MainGameLoop {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		DisplayManager.createDisplay();
-		Loader loader = new Loader();
-		
-		
-		RawModel model = OBJLoader.loadObjModel("tree", loader);
-		
-		TexturedModel staticModel = new TexturedModel(model,new ModelTexture(loader.loadTexture("tree")));
-		
-		List<Entity> entities = new ArrayList<Entity>();
-		Random random = new Random();
-		for(int i=0;i<500;i++){
-			entities.add(new Entity(staticModel, new Vector3f(random.nextFloat()*800 - 400,0,random.nextFloat() * -600),0,0,0,3));
-		}
-		
-		Light light = new Light(new Vector3f(20000,20000,2000),new Vector3f(1,1,1));
-		
-		Terrain terrain = new Terrain(0,0,loader,new ModelTexture(loader.loadTexture("grass")));
-		Terrain terrain2 = new Terrain(1,0,loader,new ModelTexture(loader.loadTexture("grass")));
-		
-		Camera camera = new Camera();	
-		MasterRenderer renderer = new MasterRenderer();
-		
-		while(!Display.isCloseRequested()){
-			camera.move();
-			
-			renderer.processTerrain(terrain);
-			renderer.processTerrain(terrain2);
-			for(Entity entity:entities){
-				renderer.processEntity(entity);
-			}
-			renderer.render(light, camera);
-			DisplayManager.updateDisplay();
-		}
+        DisplayManager.createDisplay();
+        Loader loader = new Loader();
 
-		renderer.cleanUp();
-		loader.cleanUp();
-		DisplayManager.closeDisplay();
+        RawModel model = OBJLoader.loadObjModel("tree", loader);
+        TexturedModel staticModel = new TexturedModel(model, new ModelTexture(loader.loadTexture("tree")));
 
-	}
+        List<Entity> entities = new ArrayList<>();
+        Random random = new Random();
+        int worldSize = 5; 
+        
+        for (int i = 0; i < 50000; i++) {
+            float x = random.nextFloat() * (worldSize * 800) - (worldSize * 400);
+            float z = random.nextFloat() * (worldSize * -800) + (worldSize * 400);
+            entities.add(new Entity(staticModel, new Vector3f(x, 0, z), 0, 0, 0, 3));
+        }
 
+        
+        Light sunlight = new Light(new Vector3f(20000,20000,2000),new Vector3f(1,1,1));
+
+        List<Terrain> terrains = new ArrayList<>();
+        for (int i = -worldSize / 2; i < worldSize / 2; i++) {
+            for (int j = -worldSize / 2; j < worldSize / 2; j++) {
+                terrains.add(new Terrain(i, j, loader, new ModelTexture(loader.loadTexture("grass"))));
+            }
+        }
+
+        Camera camera = new Camera();
+        MasterRenderer renderer = new MasterRenderer();
+
+        while (!Display.isCloseRequested()) {
+            camera.move();
+            for (Terrain terrain : terrains) {
+                renderer.processTerrain(terrain);
+            }
+
+            for (Entity entity : entities) {
+                renderer.processEntity(entity);
+            }
+            renderer.render(sunlight, camera);
+            DisplayManager.updateDisplay();
+        }
+
+        renderer.cleanUp();
+        loader.cleanUp();
+        DisplayManager.closeDisplay();
+    }
 }
+
