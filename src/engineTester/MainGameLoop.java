@@ -19,6 +19,7 @@ import textures.TerrainTexturePack;
 import entities.Camera;
 import entities.Entity;
 import entities.Light;
+import entities.Player;
 
 public class MainGameLoop {
 
@@ -82,10 +83,15 @@ public class MainGameLoop {
         Camera camera = new Camera();
         MasterRenderer renderer = new MasterRenderer();
 
-        // Bucla principală a jocului
+        RawModel bunnyModel=OBJLoader.loadObjModel("stanfordBunny", loader);
+        TexturedModel stanfordBunny= new TexturedModel(bunnyModel, new ModelTexture(loader.loadTexture("white")));
+        
+        Player player=new Player(stanfordBunny, new Vector3f(100, 0, -50), 0, 0, 0, 1);
+        
         while (!Display.isCloseRequested()) {
             camera.move();  // Mișcarea camerei
-
+            player.move();
+            
             for (Terrain terrain : terrains) {
                 renderer.processTerrain(terrain);
             }
@@ -93,6 +99,7 @@ public class MainGameLoop {
             for (Entity entity : entities) {
                 renderer.processEntity(entity);
             }
+            renderer.processEntity(player);
             renderer.render(sunlight, camera); // Randare
             DisplayManager.updateDisplay();
         }
